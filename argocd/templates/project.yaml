@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: {{ .Values.project }}
+  namespace: {{ .Values.argocd.namespace }}
+spec:
+  description: Plataforma de microservicios P9
+  sourceRepos:
+    - {{ .Values.gitopsRepo | quote }}
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: sa-p9
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

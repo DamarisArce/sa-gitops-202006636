@@ -31,6 +31,7 @@ spec:
 {{- $services := list "auth-service" "medicine-service" "order-service" "payment-service" "api-gateway" }}
 {{- $release := .Values.helmRelease }}
 {{- range $svc := $services }}
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
