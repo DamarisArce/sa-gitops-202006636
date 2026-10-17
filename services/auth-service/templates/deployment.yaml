@@ -28,7 +28,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.port }}
-         envFrom:
+          envFrom:
             - configMapRef:
                 name: sa-p9-config
           env:
