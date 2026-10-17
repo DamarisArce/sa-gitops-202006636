@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "payment-service.fullname" . }}-config
+  labels:
+    {{- include "payment-service.labels" . | nindent 4 }}
+  annotations:
+    checksum/config: {{ toYaml .Values | sha256sum | trunc 12 }}
+data:
+  DB_HOST: {{ .Values.database.host | default "postgres" | quote }}
+  DB_PORT: {{ .Values.database.port | default "5432" | quote }}
+  DB_USER: {{ .Values.database.user | default "sa" | quote }}
+  DB_NAME: {{ .Values.database.name | default "pharmadb" | quote }}
+  RABBITMQ_HOST: "{{ .Release.Name }}-rabbitmq"
+  RABBITMQ_PORT: {{ .Values.rabbitmq.port | quote }}
+  RABBITMQ_VHOST: {{ .Values.rabbitmq.vhost | default "/" | quote }}
+  {{- if eq .Values.global.environment "prod" }}
+  LOG_LEVEL: "warning"
+  {{- else if eq .Values.global.environment "dev" }}
+  LOG_LEVEL: "debug"
+  {{- else }}
+  LOG_LEVEL: {{ .Values.logLevel | default "info" | quote }}
+  {{- end }}
+  SERVICE_PORT: {{ .Values.service.port | quote }}
+  {{- range .Values.env.extra }}
+  {{ .name }}: {{ .value | quote }}
+  {{- end }}

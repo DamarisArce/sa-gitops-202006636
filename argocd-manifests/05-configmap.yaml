@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sa-services-config
+  namespace: sa-p9
+data:
+  AUTH_SERVICE_URL: "http://auth-service:8001"
+  MEDICINE_SERVICE_URL: "http://medicine-service:8002"
+  ORDER_SERVICE_URL: "http://order-service:8003/orders/graphql"
+  PAYMENT_SERVICE_URL: "http://payment-service:8004"
+  DB_HOST: "postgres"
+  DB_PORT: "5432"
+  DB_USER: "sa"
+  DB_NAME: "pharmadb"

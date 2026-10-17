@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "medicine-service.fullname" . }}-config
+  labels:
+    {{- include "medicine-service.labels" . | nindent 4 }}
+  annotations:
+    checksum/config: {{ toYaml .Values | sha256sum | trunc 12 }}
+data:
+  DB_HOST: {{ .Values.database.host | default "postgres" | quote }}
+  DB_PORT: {{ .Values.database.port | default "5432" | quote }}
+  DB_USER: {{ .Values.database.user | default "sa" | quote }}
+  DB_NAME: {{ .Values.database.name | default "pharmadb" | quote }}
+  SERVICE_PORT: {{ .Values.service.port | quote }}
+  {{- $environment := .Values.global.environment | default "dev" }}
+  {{- if eq $environment "prod" }}
+  LOG_LEVEL: "warning"
+  {{- else if eq $environment "dev" }}
+  LOG_LEVEL: "debug"
+  {{- else }}
+  LOG_LEVEL: {{ .Values.logLevel | default "info" | quote }}
+  {{- end }}
+  {{- range .Values.env.extra }}
+  {{ .name }}: {{ .value | quote }}
+  {{- end }}

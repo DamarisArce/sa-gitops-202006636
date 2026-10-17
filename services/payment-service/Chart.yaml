@@ -1,0 +1,6 @@
+apiVersion: v2
+name: payment-service
+description: Servicio de pagos con productor RabbitMQ (Práctica 5 - Subchart)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

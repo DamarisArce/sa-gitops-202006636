@@ -1,0 +1,67 @@
+# ─────────────────────────────────────────────────────────────
+# APP-OF-APPS: reconstruye toda la plataforma desde un solo punto
+# 1 Application base (namespace + postgres + config compartida)
+# + 1 Application por cada microservicio.
+# ─────────────────────────────────────────────────────────────
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sa-p9-base
+  namespace: {{ .Values.argocd.namespace }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.project }}
+  source:
+    repoURL: {{ .Values.gitopsRepo }}
+    targetRevision: {{ .Values.gitopsBranch }}
+    path: {{ .Values.basePath }}
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: sa-p9
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+{{- $repo := .Values.gitopsRepo }}
+{{- $branch := .Values.gitopsBranch }}
+{{- $services := list "auth-service" "medicine-service" "order-service" "payment-service" "api-gateway" }}
+{{- $release := .Values.helmRelease }}
+{{- range $svc := $services }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sa-p9-{{ $svc }}
+  namespace: {{ $.Values.argocd.namespace }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $.Values.project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $branch }}
+    path: {{ printf "%s/%s" $.Values.servicesPath $svc }}
+    helm:
+      releaseName: {{ $release }}
+      parameters:
+        - name: image.pullPolicy
+          value: IfNotPresent
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: sa-p9
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 5m
+{{- end }}

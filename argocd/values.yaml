@@ -1,0 +1,15 @@
+project: sa-p9
+
+argocd:
+  namespace: argocd
+
+# Repositorio GitOps público (CAMBIAR por la URL real una vez creado)
+gitopsRepo: "https://github.com/DamarisArce/sa-gitops-202006636"
+gitopsBranch: main
+
+# Rutas dentro del repo considerando que la raíz del repo soy yo
+basePath: "argocd-manifests"
+servicesPath: "services"
+
+# Release de Helm único para que coincidan las URLs de los servicios
+helmRelease: sa-p9
